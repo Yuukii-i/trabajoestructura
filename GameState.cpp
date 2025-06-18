@@ -4,6 +4,9 @@
 #include <SFML/Audio.hpp>
 #include <random>
 #include <iostream>
+#include "GameStateSim.h"
+#include "IAUtils.h"
+
 GameState::GameState(sf::RenderWindow& window, StateManager& stateManager,
     std::vector<Personaje*> personajes, Personaje* (&tablero)[8][8],
     std::queue<Personaje*> orden_Turno)
@@ -19,7 +22,7 @@ GameState::GameState(sf::RenderWindow& window, StateManager& stateManager,
         for (int j = 0; j < 8; ++j) {
             m_grid[i][j].setSize(sf::Vector2f(cellSize, cellSize));
             m_grid[i][j].setPosition(j * cellSize, i * cellSize);
-            m_grid[i][j].setFillColor(sf::Color::White);
+            m_grid[i][j].setFillColor(sf::Color(255, 255, 255, 40));
             m_grid[i][j].setOutlineThickness(1.f);
             m_grid[i][j].setOutlineColor(sf::Color::Black);
         }
@@ -144,7 +147,6 @@ void GameState::handleAttackInput(sf::Event& event) {
     }
 }
 
-
 // Entrada en menú de selección de habilidad
 void GameState::handleSkillSelectInput(sf::Event& event) {
     if (event.key.code == sf::Keyboard::Down && m_selectedSkillIndex < m_skillOptions.size() - 1)
@@ -219,6 +221,7 @@ void GameState::handleSkillConfirmTargetInput(sf::Event& event) {
         m_objetivosValidos.clear();
     }
 }
+
 void GameState::actualizarObjetivosValidosBasico() {
     m_objetivosValidos.clear();
     for (Personaje* p : m_personajes) {
@@ -258,7 +261,6 @@ void GameState::cargarSkillsDelPersonaje(Personaje* p) {
     m_skillDescription.setPosition(420.f, 300.f);
 }
 
-
 void GameState::update() {
    
     for (int i = 0; i < m_actionOptions.size(); ++i) {
@@ -290,12 +292,12 @@ void GameState::verificarFinDelJuego() {
 
 void GameState::pasarTurno() {
     verificarFinDelJuego();
+
     if (!m_ordenTurno.empty()) {
         m_ordenTurno.pop();
     }
 
     if (m_ordenTurno.empty()) {
-        
         inicializarOrdenTurnos();
     }
 
@@ -304,6 +306,21 @@ void GameState::pasarTurno() {
     }
     else {
         m_personajeEnTurno = nullptr;
+    }
+
+    // Verificar si es el turno de la IA
+    if (m_personajeEnTurno != nullptr && m_personajeEnTurno->getControl() == "J2") {
+
+        GameStateSim estadoSimulado = crearSimulacion();
+
+        // Asegúrate de que la función recibe GameStateSim
+        GameStateSim mejorEstado = obtenerMejorAccion(estadoSimulado);
+        
+        // Actualizar el estado real del juego con el mejor estado calculado por la IA
+        actualizarEstadoConSimulacion(mejorEstado);
+
+        // Pasar al siguiente turno
+        pasarTurno();
     }
 }
 
@@ -328,7 +345,6 @@ void GameState::inicializarOrdenTurnos(){
     else
         m_personajeEnTurno = nullptr;
 }
-
 
 void GameState::dibujarBarras(Personaje* p, sf::RenderWindow& window) {
     if (p == nullptr) return;
@@ -368,10 +384,24 @@ void GameState::dibujarBarras(Personaje* p, sf::RenderWindow& window) {
     window.draw(barraMana);
 }
 
-
 void GameState::render() {
     m_window.clear();
+    sf::Texture texturaFondo;
+    if (!texturaFondo.loadFromFile("assets/images/fondo.jpg")) {
+        std::cerr << "No se pudo cargar el fondo\n";
+    }
+    sf::Sprite fondo;
+    fondo.setTexture(texturaFondo);
 
+    // Suponiendo que la ventana mide 800x600
+    sf::Vector2u tamañoVentana = m_window.getSize();
+    sf::Vector2u tamañoImagen = texturaFondo.getSize();
+
+    float escalaX = static_cast<float>(tamañoVentana.x) / tamañoImagen.x;
+    float escalaY = static_cast<float>(tamañoVentana.y) / tamañoImagen.y;
+
+    fondo.setScale(escalaX, escalaY);
+    m_window.draw(fondo);
         if (m_currentActionMenu == ActionMenuState::Skill_ConfirmTarget)
     m_targetCursor.setOutlineColor(sf::Color::Blue);
 else
@@ -408,25 +438,35 @@ else
     // Dibujar personajes
     for (auto p : m_personajes) {
         if (!p->getVivo()) continue;
+        sf::Texture personajeTexture;
+        if (!personajeTexture.loadFromFile(p->getSprite())) {
+            std::cerr << "Error al cargar sprite\n";
+        }
 
-        sf::CircleShape circle(20.f);
+        sf::Sprite sprite(personajeTexture);
 
-        if (p->getControl() == "J1")
-            circle.setFillColor(sf::Color::Green);// J1
-        else
-            circle.setFillColor(sf::Color::Red);// J2
+        sf::Vector2u spriteSize = personajeTexture.getSize();
 
 
-        circle.setPosition((p->getPosicion().first) * 50.f, (p->getPosicion().second) * 50.f);
-        m_window.draw(circle);
 
+        float escalaX = 50.f / spriteSize.x;
+        float escalaY = 50.f / spriteSize.y;
+
+        sprite.setScale(escalaX, escalaY);
+
+        sprite.setPosition(p->getPosicion().first * 50.f, p->getPosicion().second * 50.f);
+
+        m_window.draw(sprite);
+        sf::Vector2f posicion = sprite.getPosition();
+        float x = posicion.x;
+        float y = posicion.y;
 
         // Flechita de turno
         if (p == m_personajeEnTurno) {
             sf::CircleShape flecha(5.f, 3);
             flecha.setFillColor(sf::Color::Black);
             flecha.setRotation(180.f);
-            flecha.setPosition(circle.getPosition().x + 15.f, circle.getPosition().y - 10.f);
+            flecha.setPosition(x + 15.f, y - 10.f);
             m_window.draw(flecha);
         }
         if (m_personajeEnTurno != nullptr) {
@@ -450,7 +490,7 @@ else
 
             sf::FloatRect bounds = nombreText.getLocalBounds();
             nombreText.setOrigin(bounds.width / 2, bounds.height / 2);
-            nombreText.setPosition(circle.getPosition().x + 20.f, circle.getPosition().y + 20.f);
+            nombreText.setPosition(x + 80.f, y + 80.f);
 
             m_window.draw(nombreText);
 
@@ -603,8 +643,6 @@ std::vector<Personaje*> GameState::getObjetivosPorEfecto(const std::string& efec
     return objetivos;
 }
 
-
-
 void GameState::reproducirCancionDeCombateAleatoria() {
     if (m_combatSongs.empty()) return;
 
@@ -624,5 +662,188 @@ void GameState::reproducirCancionDeCombateAleatoria() {
     music.play();
     
 
+}
+
+GameStateSim GameState::crearSimulacion() const {
+    GameStateSim sim;
+
+    for (size_t i = 0; i < m_personajes.size(); ++i) {
+        const Personaje* p = m_personajes[i];
+        if (!p) continue;
+
+        SimPersonaje simP(
+            static_cast<int>(i),              // id
+            p->getVidaActual(),                       // hp actual
+            p->getVidaMax(),                    // hp máximo
+            p->getVelocidad(),                // velocidad
+            p->getAtaque(),                 // daño básico
+            p->getVivo(),                     // ¿sigue vivo?
+            (p->getControl() == "J1" ? 0 : 1)
+            // 0 = jugador, 1 = IA
+        );
+
+        sim.personajes.push_back(simP);
+    }
+
+    // Determinar quién tiene el turno actualmente
+    // Suponiendo que tu turno actual está en `m_personajeEnTurno`
+    for (size_t i = 0; i < sim.personajes.size(); ++i) {
+        if (m_personajes[i] == m_personajeEnTurno) {
+            sim.indiceTurnoActual = static_cast<int>(i);
+            break;
+        }
+    }
+
+    return sim;
+}
+
+int GameState::minimax(GameStateSim estado, int profundidad, bool esMaximizador, int alfa, int beta) {
+    if (estado.estaTerminado() || profundidad == 0) {
+        return evaluarEstado(estado);  // Evaluamos el estado al llegar a una hoja o al límite de profundidad
+    }
+
+    std::vector<GameStateSim> siguientesEstados = generarAcciones(estado);
+
+    if (esMaximizador) {
+        int mejorPuntuacion = -INT_MAX;
+        for (const auto& siguienteEstado : siguientesEstados) {
+            int puntuacion = minimax(siguienteEstado, profundidad - 1, false, alfa, beta); // Es turno del jugador
+            mejorPuntuacion = std::max(mejorPuntuacion, puntuacion);
+            alfa = std::max(alfa, mejorPuntuacion);  // Actualizamos alfa
+
+            if (beta <= alfa) {
+                break;  // Poda: si el valor de beta es menor o igual a alfa, cortamos la rama
+            }
+        }
+        return mejorPuntuacion;
+    }
+    else {
+        int mejorPuntuacion = INT_MAX;
+        for (const auto& siguienteEstado : siguientesEstados) {
+            int puntuacion = minimax(siguienteEstado, profundidad - 1, true, alfa, beta); // Es turno de la IA
+            mejorPuntuacion = std::min(mejorPuntuacion, puntuacion);
+            beta = std::min(beta, mejorPuntuacion);  // Actualizamos beta
+
+            if (beta <= alfa) {
+                break;  // Poda: si el valor de beta es menor o igual a alfa, cortamos la rama
+            }
+        }
+        return mejorPuntuacion;
+    }
+}
+
+GameStateSim GameState::obtenerMejorAccion(const GameStateSim& estado) {
+    // Generamos todos los posibles estados de acción del estado actual
+    std::vector<GameStateSim> siguientesEstados = generarAcciones(estado);
+
+    // Inicializamos la puntuación más baja posible
+    int mejorPuntuacion = -INT_MAX;
+    GameStateSim mejorEstado;
+
+    // Inicializamos los valores de alfa y beta para la poda alpha-beta
+    int alfa = -INT_MAX;
+    int beta = INT_MAX;
+
+    // Evaluamos todos los posibles siguientes estados
+    for (const auto& siguienteEstado : siguientesEstados) {
+        // Llamamos al algoritmo minimax con poda para obtener la puntuación del siguiente estado
+        int puntuacion = minimax(siguienteEstado, 3, false, alfa, beta); // Es el turno de la IA (minimizar)
+
+        // Si la puntuación es mejor que la actual, actualizamos el mejor estado
+        if (puntuacion > mejorPuntuacion) {
+            mejorPuntuacion = puntuacion;
+            mejorEstado = siguienteEstado;
+        }
+    }
+
+    // Devolvemos el mejor estado encontrado
+    return mejorEstado;
+}
+
+int GameState::evaluarEstado(const GameStateSim& estado) {
+    int puntuacion = 0;
+
+    // Variables para sumar/penalizar según el número de personajes vivos
+    int personajesIAVivos = 0;
+    int personajesJugadorVivos = 0;
+
+    // Recorremos todos los personajes del estado
+    for (const auto& p : estado.personajes) {
+        if (!p.vivo) continue;  // Si el personaje está muerto, lo ignoramos
+
+        // Para la IA (control == 1)
+        if (p.control == 1) {
+            personajesIAVivos++;
+            puntuacion += p.hp;  // Sumar vida de los personajes vivos de la IA
+
+            // Premiar por mana disponible (si el personaje tiene mana, considera usarlo)
+            // Supongo que tienes algún atributo para el mana de los personajes
+            int mana = 100;  // Reemplaza esto por el atributo real de mana del personaje
+            puntuacion += mana * 0.5; // Añadir valor proporcional al mana
+
+            // Sumar puntos por la velocidad de los personajes
+            puntuacion += p.velocidad * 2;  // Cuanto más rápido, mejor
+
+            // Penalizar personajes de la IA con poco HP
+            if (p.hp < (p.maxHp * 0.25)) {
+                puntuacion -= 20;  // Penaliza si su vida es muy baja
+            }
+
+            // Agregar valor si el personaje tiene un alto daño
+            puntuacion += p.dañoBase * 1.5;  // Ajusta el valor según sea necesario
+
+        }
+        // Para el jugador (control == 0)
+        else if (p.control == 0) {
+            personajesJugadorVivos++;
+
+            // Penalizar por vida del jugador (la IA quiere que el jugador tenga poca vida)
+            puntuacion -= p.hp;
+
+            // Penalizar personajes del jugador con alta velocidad
+            puntuacion -= p.velocidad * 1.5;  // Si el jugador es rápido, es una desventaja para la IA
+
+            // Penalizar personajes enemigos con mucho daño (son más peligrosos para la IA)
+            puntuacion -= p.dañoBase * 2;  // Ajusta según lo que consideres adecuado
+
+            // Penalizar personajes enemigos con alta defensa (si tienes defensa, añádela aquí)
+            int defensa = 10;  // Reemplaza esto por el atributo real de defensa
+            puntuacion -= defensa * 1.5;  // Penaliza a los enemigos con alta defensa
+        }
+    }
+
+    // Factor final que premia tener más personajes vivos
+    puntuacion += (personajesIAVivos - personajesJugadorVivos) * 50;  // Ajusta el valor de la diferencia de personajes vivos
+
+    return puntuacion;
+}
+
+void GameState::actualizarEstadoConSimulacion(const GameStateSim& simulado) {
+    // Recorremos los personajes en el estado simulado
+    for (size_t i = 0; i < simulado.personajes.size(); ++i) {
+        const SimPersonaje& pSimulado = simulado.personajes[i];
+        Personaje* pReal = m_personajes[i];  // El personaje real en el juego
+
+        if (!pReal) continue;
+
+        // Actualizar atributos según el estado simulado
+        pReal->setVidaActual(pSimulado.hp);      // Actualizamos la vida
+        pReal->setVelocidad(pSimulado.velocidad); // Actualizamos la velocidad
+        pReal->setAtaque(pSimulado.dañoBase);  // Actualizamos el daño básico
+
+        // Actualizar si el personaje está vivo o muerto
+        if (pSimulado.vivo) {
+            pReal->setVivo(true);  // Método ficticio para revivir si estaba muerto
+        }
+        else {
+            pReal->setVivo(false);  // Método ficticio para matar al personaje si estaba vivo
+        }
+
+        // Asegurarse de que el control (jugador/IA) sigue siendo correcto
+        pReal->setControl(pSimulado.control == 0 ? "J1" : "J2");
+    }
+
+    // Actualizamos el turno real
+    m_personajeEnTurno = m_personajes[simulado.indiceTurnoActual];
 }
 

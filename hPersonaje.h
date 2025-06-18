@@ -6,34 +6,34 @@ class Personaje
 {
 private:
 	int vidaMax,vidaActual, ataque, defensa, velocidad, mana, manaMax;
-	std::string nombre,tipo,control;
+	std::string nombre,tipo,control,sprite;
 	std::vector<Habilidad*> habilidades;
 	std::pair<int, int> posicion;// x,y
 	bool sangrando,vivo, aturdido;
 public:
-	Personaje(std::string nombre,std::string tipo,std::string control,int vidaMax, int ataque, int defensa, int velocidad, int mana,bool sangrando,bool vivo,bool aturdido, std::vector<Habilidad*> habilidades, std::pair<int, int> posicion, int manaMax);
+	Personaje(std::string nombre,std::string tipo,std::string control,int vidaMax, int ataque, int defensa, int velocidad, int mana,bool sangrando,bool vivo,bool aturdido, std::vector<Habilidad*> habilidades, std::pair<int, int> posicion, int manaMax, std::string sprite);
 	~Personaje();
 	void moverse();
 	bool atacar(Personaje* objetivo);
 
 	
 	// Getters
-	std::string getNombre();
-	std::string getTipo();
-	std::string getControl();
-	int getVidaMax();
-	int getVidaActual();
-	int getAtaque();
-	int getDefensa();
-	int getVelocidad();
-	int getMana();
-	std::vector<Habilidad*> getHabilidades();
-	std::pair<int, int> getPosicion();
-	bool getSangrando();
-	bool getVivo();
-	bool getAturdido();
-	int getManaMax();
-
+	std::string getNombre() const;
+	std::string getTipo() const;
+	std::string getControl() const;
+	int getVidaMax() const;
+	int getVidaActual() const;
+	int getAtaque() const;
+	int getDefensa() const;
+	int getVelocidad() const;
+	int getMana() const;
+	std::vector<Habilidad*> getHabilidades() const;
+	std::pair<int, int> getPosicion() const;
+	bool getSangrando() const;
+	bool getVivo() const;
+	bool getAturdido() const;
+	int getManaMax() const;
+	std::string getSprite();
 	// Setters
 	void setNombre(std::string nombre);
 	void setTipo(std::string tipo);

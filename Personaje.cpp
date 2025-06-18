@@ -1,7 +1,7 @@
 #include "hPersonaje.h"
 #include <SFML/Graphics.hpp>
 #include "hHabilidad.h"
-Personaje::Personaje(std::string nombre,std::string tipo,std::string control, int vidaMax, int ataque, int defensa, int velocidad, int mana,bool sangrando ,bool vivo,bool aturdido ,std::vector<Habilidad*> habilidades,std::pair<int, int> posicion, int manaMax) {
+Personaje::Personaje(std::string nombre,std::string tipo,std::string control, int vidaMax, int ataque, int defensa, int velocidad, int mana,bool sangrando ,bool vivo,bool aturdido ,std::vector<Habilidad*> habilidades,std::pair<int, int> posicion, int manaMax, std::string sprite) {
 	this->nombre = nombre;
 	this->tipo = tipo;
 	this->control = control;
@@ -17,7 +17,7 @@ Personaje::Personaje(std::string nombre,std::string tipo,std::string control, in
 	this->sangrando = sangrando;
 	this->vivo = vivo;
 	this->aturdido = aturdido;
-
+	this->sprite = sprite;
 	
 }
 Personaje::~Personaje(){}
@@ -54,50 +54,53 @@ bool Personaje::atacar(Personaje* objetivo) {
 }
 
 // Getters
-std::string Personaje::getNombre() {
+std::string Personaje::getNombre() const {
 	return nombre;
 }
-std::string Personaje::getTipo() {
+std::string Personaje::getTipo() const {
 	return tipo;
 }
-std::string Personaje::getControl() {
+std::string Personaje::getControl() const {
 	return control;
 }
-int Personaje::getVidaMax() {
+int Personaje::getVidaMax() const {
 	return vidaMax;
 }
-int Personaje::getVidaActual() {
+int Personaje::getVidaActual() const {
 	return vidaActual;
 }
-int Personaje::getAtaque() {
+int Personaje::getAtaque() const {
 	return ataque;
 }
-int Personaje::getDefensa() {
+int Personaje::getDefensa() const {
 	return defensa;
 }
-int Personaje::getVelocidad() {
+int Personaje::getVelocidad() const {
 	return velocidad;
 }
-int Personaje::getMana() {
+int Personaje::getMana() const {
 	return mana;
 }
-std::vector<Habilidad*> Personaje::getHabilidades() {
+std::vector<Habilidad*> Personaje::getHabilidades() const {
 	return habilidades;
 }
-std::pair<int, int> Personaje::getPosicion() {
+std::pair<int, int> Personaje::getPosicion() const {
 	return posicion;
 }
-bool Personaje::getSangrando() {
+bool Personaje::getSangrando() const {
 	return sangrando;
 }
-bool Personaje::getVivo() {
+bool Personaje::getVivo() const {
 	return vivo;
 }
-bool Personaje::getAturdido() {
+bool Personaje::getAturdido() const {
 	return aturdido;
 }
-int Personaje::getManaMax(){
+int Personaje::getManaMax() const{
 	return manaMax;
+}
+std::string Personaje::getSprite() {
+	return sprite;
 }
 
 // Setters

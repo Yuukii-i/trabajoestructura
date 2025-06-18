@@ -149,7 +149,12 @@
   <ItemGroup>
     <ClCompile Include="Buff.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="GameStateSim.cpp" />
     <ClCompile Include="Habilidad.cpp" />
+    <ClCompile Include="IAUtils.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Personaje.cpp" />
     <ClCompile Include="Skill.cpp" />
@@ -163,9 +168,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="GameStateSim.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="hBuff.h" />
     <ClInclude Include="hHabilidad.h" />
     <ClInclude Include="hPersonaje.h" />
+    <ClInclude Include="IAUtils.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="Skill.h" />
     <ClInclude Include="State.h" />

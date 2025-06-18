@@ -1,4 +1,3 @@
-#pragma once
 #include "State.h"
 #include "StateManager.h"
 #include <SFML/Graphics.hpp>
@@ -8,6 +7,8 @@
 #include <SFML/Audio.hpp>
 #include <list>
 #include "Skill.h"
+#include "GameStateSim.h"
+#include "IAUtils.h"
 struct CompararVelocidad {
     bool operator()(Personaje* a, Personaje* b) {
         return a->getVelocidad() < b->getVelocidad();
@@ -43,6 +44,11 @@ public:
     void usarSkill(Skill* skill, Personaje* lanzador, std::vector<Personaje*> objetivos);
     std::vector<Personaje*> getObjetivosPorEfecto(const std::string& efecto, Personaje* lanzador);
     void cargarSkillsDelPersonaje(Personaje* p);
+    GameStateSim crearSimulacion() const;
+    int evaluarEstado(const GameStateSim& estado);
+    int minimax(GameStateSim estado, int profundidad, bool esMaximizador, int alfa, int beta);
+    GameStateSim obtenerMejorAccion(const GameStateSim& estado);
+    void actualizarEstadoConSimulacion(const GameStateSim& simulado);
     void verificarFinDelJuego();
     void handleGameOverInput(sf::Event& event);
     void handleActionMenuInput(sf::Event& event);
