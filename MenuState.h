@@ -18,7 +18,7 @@ public:
     bool shouldExit() const override { return m_exit; }
     const float anchoBarra = 40.f;
     bool debeSalir() const;
-
+    void reproducirCancionMenuAleatoria();
 
 private:
     sf::RenderWindow& m_window;
@@ -30,5 +30,10 @@ private:
     sf::Font m_font;
     int m_selectedIndex;
     bool m_exit;
-
+    sf::Texture m_logo;
+    sf::Sprite m_logoSprite;
+    sf::Texture m_fondo;
+    sf::Sprite m_fondoSprite;
+    sf::Music m_music;
+    std::vector<std::string> menuThemes;
 };

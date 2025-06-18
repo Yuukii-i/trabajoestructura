@@ -74,7 +74,7 @@ std::vector<Personaje*> crearPersonajes() {
 
 	habilidadesP3.push_back(new Buff("Bomba de humo", "Debuff", "Crea una nube de humo que disminuye la velocidad del enemigo en un 10%", 20));
 
-	Personaje* p3 = new Personaje("Umbra Bellator", "Trauma", "J1", 120, 40, 10, 3, 45, false, true, true, habilidadesP3, std::make_pair(0, 5), 45, "assets/images/Soldado.png");
+	Personaje* p3 = new Personaje("Umbra Bellator", "Trauma", "J1", 120, 40, 100, 3, 45, false, true, true, habilidadesP3, std::make_pair(0, 5), 45, "assets/images/Soldado.png");
 	personajes.push_back(p3);
 
 	std::vector<Habilidad*> habilidadesP4;
@@ -157,7 +157,7 @@ int main() {
 	ubicarPersonaje(personajes, tablero);
 	std::queue<Personaje*> orden_Turno = calcularOrden(personajes);
 
-	sf::RenderWindow window(sf::VideoMode(800, 600), "Take Your Meds");
+	sf::RenderWindow window(sf::VideoMode(1280, 720), "Take Your Meds");
 
 	StateManager stateManager;
 	stateManager.setState(std::make_unique<MenuState>(window, stateManager, personajes, tablero, orden_Turno));

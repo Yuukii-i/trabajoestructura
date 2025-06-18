@@ -79,4 +79,10 @@ private:
     std::vector<Personaje*> m_objetivosValidos;
     int m_selectedTargetIndex = 0;
     std::string formatearDescripcion(const std::string& texto, unsigned int maxWidth, const sf::Font& font, unsigned int characterSize);
+    sf::Texture texturaFondo;
+    int indexAliado;
+    int indexEnemigo;
+    float offsetAliado;
+    float offsetEnemigo;
+
 };
