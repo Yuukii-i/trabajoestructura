@@ -1,3 +1,6 @@
+Rodrigo Cortés, 21.594.212-0
+Jaime Araya, 21.652.246-K
+
 (ACLARACION, en este repositorio puede que aparescan 2 ramas, la default y la main, la mas actual es la main ya que la otra fue antes de que supieramos que se podia hacer un main y ahi se ven reflejados cambios anteriores)
 #Take your meds
 Bienvenido a Take your meds, un RPG por turnos Jugador vs Jugador (por ahora) donde podras luchar contra tus demonios internos con una musica de fondo emocionante
