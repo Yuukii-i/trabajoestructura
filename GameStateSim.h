@@ -9,10 +9,10 @@ struct SimPersonaje {
     int hp;
     int maxHp;
     int velocidad;
-    int dañoBase;
+    int daÃ±oBase;
     bool vivo;
     int control;
-    int posicion; // Opcional
+    int posicion; 
 
     SimPersonaje(int id_, int hp_, int maxHp_, int vel_, int dmg_, bool vivo_, int ctrl_);
 };
@@ -22,8 +22,8 @@ struct GameStateSim {
     std::vector<SimPersonaje> personajes;
     int indiceTurnoActual = 0;
 
-    bool estaTerminado() const;  // Verifica si el juego ha terminado.
-    void avanzarTurno();         // Avanza al siguiente personaje vivo.
+    bool estaTerminado() const; 
+    void avanzarTurno();         
 };
 
-#endif // GAME_STATE_SIM_H
+#endif
